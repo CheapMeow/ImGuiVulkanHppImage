@@ -35,7 +35,7 @@ app_info.apiVersion = VK_API_VERSION_1_0;
 Instance = vk::createInstanceUnique({flags, &app_info, validation_layers, extensions});
 ```
 
-###
+### device extension
 
 Bug
 
