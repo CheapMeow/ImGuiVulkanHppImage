@@ -14,8 +14,15 @@ VulkanContext::VulkanContext(std::vector<const char *> extensions) {
     extensions.push_back("VK_EXT_debug_utils");
 
     const std::vector<const char *> validation_layers{"VK_LAYER_KHRONOS_validation"};
-    const vk::ApplicationInfo app{"", {}, "", {}, {}};
-    Instance = vk::createInstanceUnique({flags, &app, validation_layers, extensions});
+    vk::ApplicationInfo app_info{};
+    app_info.sType = vk::StructureType::eApplicationInfo;
+    app_info.pApplicationName = "Hello Vulkan";
+    app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.pEngineName = "No Engine";
+    app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.apiVersion = VK_API_VERSION_1_0;
+
+    Instance = vk::createInstanceUnique({flags, &app_info, validation_layers, extensions});
 
     const vk::DispatchLoaderDynamic dldi{Instance.get(), vkGetInstanceProcAddr};
     const auto messenger = Instance->createDebugUtilsMessengerEXTUnique(
@@ -45,7 +52,7 @@ VulkanContext::VulkanContext(std::vector<const char *> extensions) {
     if (QueueFamily == static_cast<uint>(-1)) throw std::runtime_error("No graphics queue family found.");
 
     // Create logical device (with 1 queue).
-    const std::vector<const char *> device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME, "VK_KHR_portability_subset"};
+    const std::vector<const char *> device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     const std::array<float, 1> queue_priority = {1.0f};
     const vk::DeviceQueueCreateInfo queue_info{{}, QueueFamily, 1, queue_priority.data()};
     Device = PhysicalDevice.createDeviceUnique({{}, queue_info, {}, device_extensions});

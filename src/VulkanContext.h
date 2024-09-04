@@ -6,7 +6,9 @@
 
 #include "Log.h"
 
-using uint = u_int32_t;
+#include <stdint.h>
+
+using uint = std::uint32_t;
 
 inline static void CheckVk(VkResult err) {
     if (err != 0) throw std::runtime_error(std::format("Vulkan error: {}", int(err)));

@@ -40,3 +40,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 ${Vulkan_LIBRARIES} ${S
 
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wno-elaborated-enum-base)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 
+               COMMAND ${CMAKE_COMMAND} -E copy_if_different
+               "${CMAKE_BINARY_DIR}/lib/SDL/SDL3.dll"            
+               $<TARGET_FILE_DIR:${PROJECT_NAME}>)

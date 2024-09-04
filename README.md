@@ -1,31 +1,53 @@
-# ImGuiVulkanHppImage
+## Fork debug
 
-A demo application for rendering a triangle with Vulkan-Hpp into a docked ImGui window via `Shaders->vk::Image->MSAA->Texture->ImGui::Image`, with an SDL3 backend.
+### u_int32_t
 
-![](DemoTriangle.png)
+Fix
 
-Features:
-- Recreate sampler & texture every time the docked scene window size changes.
-- Reuse as much as possible between re-renders. (E.g. dynamic command buffer, viewport and scissor states.)
-- Multisample anti-aliasing (MSAA), using the max supported samples.
-- Minimal, condensed, modern C++ Vulkan-HPP code.
-- No dependencies other than the Vulkan SDK, ImGui, and SDL3.
+```cpp
+#include <stdint.h>
 
-## Clone/build/run
+using uint = std::uint32_t;
+```
 
-- Clone recursively
-  ```shell
-  $ git clone --recurse-submodules git@github.com:khiner/ImGuiVulkanHppImage.git
-  ```
-- Download and install the latest SDK from https://vulkan.lunarg.com/sdk/home
-- Set the `VULKAN_SDK` environment variable.
-  For example, add the following to your `.zshrc` file:
-  ```shell
-  export VULKAN_SDK="$HOME/VulkanSDK/{version}/macOS"
-  ```
-- Build/Run
-  ```shell
-  $ mkdir build && cd build && cmake ..
-  $ make
-  $ ./ImGuiVulkanHppImage
-  ```
+### API version
+
+Bug
+
+```
+ERROR:             VkInstanceCreateInfo::pApplicationInfo::apiVersion has value of 0 which is not permitted. If apiVersion is not 0, then it must be greater than or equal to the value of VK_API_VERSION_1_0 [VUID-VkApplicationInfo-apiVersion]
+```
+
+Fix
+
+src\VulkanContext.cpp
+
+```cpp
+const std::vector<const char *> validation_layers{"VK_LAYER_KHRONOS_validation"};
+vk::ApplicationInfo app_info{};
+app_info.sType = vk::StructureType::eApplicationInfo;
+app_info.pApplicationName = "Hello Vulkan";
+app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+app_info.pEngineName = "No Engine";
+app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+app_info.apiVersion = VK_API_VERSION_1_0;
+
+Instance = vk::createInstanceUnique({flags, &app_info, validation_layers, extensions});
+```
+
+###
+
+Bug
+
+```
+validation layer: loader_validate_device_extensions: Device extension VK_KHR_portability_subset not supported by selected physical device or enabled layers.
+validation layer: vkCreateDevice: Failed to validate extensions in list
+```
+
+Fix
+
+src\VulkanContext.cpp
+
+```cpp
+const std::vector<const char *> device_extensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+```
